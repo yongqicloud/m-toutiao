@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="manage">
     <div class="toolbar">
       <div class="title">
         <a href="javascript:;">频道管理</a>
@@ -11,9 +11,18 @@
     <AddControl>
       点击删除以下频道
       <template v-slot:items>
+        <ChannelItems
+          class="set-bgcolor"
+          name="推荐"
+          manage="__all__"
+          status="true"
+        >推荐</ChannelItems>
         <ChannelItems 
-          v-for="(item,key) in activeList"
+          v-for="(item,key) in aaa"
           :key="key"
+          :name="key"
+          :manage="item.channel"
+          :status="item.status"
         >
           {{key}}
         </ChannelItems>
@@ -23,16 +32,17 @@
       点击添加以下频道
       <template v-slot:items>
         <ChannelItems 
-          v-for="(item,key) in inactiveList"
+          v-for="(item,key) in bbb"
           :key="key"
+          :name="key"
+          :manage="item.channel"
+          :status="item.status"
         >
           {{key}}
         </ChannelItems>
       </template>
     </AddControl>
-
   </div>
-  
 </template>
 <script>
 import {mapState} from 'vuex'
@@ -45,26 +55,37 @@ export default {
       inactiveList:{}
     }
   },
+  computed:{
+    aaa(){
+      return this.$store.state.activeList
+    },
+    bbb(){
+      return this.$store.state.inactiveList
+    }
+  },
   components:{
     AddControl,
     ChannelItems
   },
   mounted(){
-    console.log(this.$store.state)
     let store = this.$store.state
+
     this.activeList = store.activeList
-    this.inactiveList = store.inactiveList
+    this.inactiveList = store.inactiveList  
   },
   methods:{
     handlegoback(){
       this.$router.go(-1)
     }
+  },
+  watch:{
   }
+
 }
 </script>
 
 <style lang="stylus" >
-html
+.manage
   background #f8f8f8
   .toolbar
     width 100%

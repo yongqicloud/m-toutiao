@@ -5,7 +5,7 @@
     </div>
     <div class="logo-box">
       <a href="javascript:;" class="logo-link"></a>
-      <i class="refresh-box"></i>
+      <i :class="{'refresh-box':true,rotate:isRotate} " @click="handleRefresh"></i>
     </div>
     <div class="search-box">
       <router-link
@@ -19,7 +19,20 @@
 
 <script>
 export default {
-
+  data(){
+    return {
+      isRotate:false
+    }
+  },
+  methods:{
+    handleRefresh(){
+      console.log(555)
+      this.isRotate = true
+      // setTimeout(()=>{
+      //   this.isRotate = false
+      // },3000)
+    }
+  }
 }
 </script>
 

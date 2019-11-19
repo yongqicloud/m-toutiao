@@ -3,13 +3,14 @@ import VueRouter from 'vue-router'
 import Index from 'pages/index/Layout'
 import Manage from 'pages/manage/ChannelManage'
 import Search from 'pages/search/Search'
+import Details from 'pages/details/Details'
 import NewsList from 'components/NewsList'
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    redirect:'/index'
+    redirect:'/index/channel/__all__'
   },
   {
     path:'/index',
@@ -32,6 +33,11 @@ const routes = [
     path: '/search',
     name: 'search',
     component : Search
+  },
+  {
+    path: '/details/:id',
+    name: 'details',
+    component : Details
   }
 ]
 

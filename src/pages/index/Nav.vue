@@ -5,10 +5,22 @@
         tag="a"
         href="javascript:;"
         class="btn-nav"
+        data-link="__all__"
+        to="/index/channel/__all__"
+        active-class="active"
+        @click="handleClick"
+      >
+        推荐
+      </router-link>
+      <router-link
+        tag="a"
+        href="javascript:;"
+        class="btn-nav"
         v-for="(list,name) in activeList"
         :key="list.chaneel"
         :data-link="list.channel"
         :to="`/index/channel/${list.channel}`"
+        active-class="active"
         @click="handleClick"
       >{{name}}</router-link>
     </div>
@@ -27,6 +39,7 @@
 
 <script>
 import {mapState} from 'vuex'
+
 export default {
   data(){
     return {
@@ -35,12 +48,11 @@ export default {
     }
   },
   methods:{
-    handleClick(){
-      console.log(1)
+    handleClick(evt){
+        console.log(evt)
     }
   },
   mounted(){
-    console.log(this.$store.state)
     let store = this.$store.state
     this.activeList = store.activeList
     this.inactiveList = store.inactiveList
@@ -64,6 +76,8 @@ nav
     // justify-content flex-start
     overflow hidden
     overflow-x scroll 
+    a.active
+      color red
     .btn-nav
       box-sizing border-box
       display inline-block

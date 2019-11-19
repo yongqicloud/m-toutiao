@@ -4,6 +4,7 @@
     <main>
       <Nav></Nav>
       <router-view></router-view>
+      <OpenApp></OpenApp>
     </main>
   </div>
 </template>
@@ -11,10 +12,12 @@
 <script>
 import Nav from './Nav'
 import Header from './Header'
+import OpenApp from 'components/OpenApp'
 export default {
   components:{
     Nav,
-    Header
+    Header,
+    OpenApp
   }
 }
 </script>
@@ -25,6 +28,8 @@ export default {
   >div
     height 100%
   main
-    width 100%
-    height 100%
+    height calc(100% - .44rem)
+    display flex
+    flex-direction column
+
 </style>
