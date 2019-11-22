@@ -1,14 +1,19 @@
 <template>
   <div id="main-content">
+    <van-list
+      v-model="loading"
+      :finished="finished"
+      finished-text="没有更多了"
+      @load="onLoad"
+    >
     <div
       class="loading"
       v-if="isLoading"
     >加载中...</div>
     <section
       v-else
-      v-for="item in currentChannel"
+      v-for="item in currentChannelData"
       :key="item.tag_id"
-      @click="toDetail"
     >
       <router-link
         tag="a"
@@ -51,52 +56,104 @@
         </div>
       </router-link>
     </section>
+    </van-list>
   </div>
 </template>
 
 <script>
-import {get,getAll} from '../utils/http'
+import {get,getNewsList} from '../utils/http'
 import store from 'store'
-
+import Vue from 'vue'
+import {Notify,List} from 'vant'
+Vue.use(Notify)
+Vue.use(List,{
+  'immediate-check':false
+})
 export default {
   data(){
     return {
       isLoading: true,
-      currentChannel:[]
+      currentChannelData:[],
+      refreshData:[],
+      loading: false,
+      finished: false
     }
   },
   components:{
   },
   comouted:{
-    
+    handleRefresh(){
+      console.log('更新刷新',$store.state.refreshData)
+    }
   },
   methods:{
-    toDetail(){
-      // this.$router.push('/details')
+    async onLoad() {
+      this.loading = true
+      console.log('到底了')
+      // 异步更新数据
+      let channel = this.$store.state.currentChannel
+      console.log(channel)
+      let i = parseInt(Date.now() / 1000)
+      let result = await getNewsList({
+        url:'/list/',
+        params:{
+          tag : channel,
+          ac: 'wap',
+          count: '20',
+          format: 'json_raw',
+          as: 'A1B5FDBDE677E27',
+          cp: '5DD6371ED207BE1',
+          max_behot_time: '1574325537',
+          _signature: 'rpga3wAA81xXY.LQ.rbb566YGs',
+          i: 1574325537
+        }
+      })
+      // result.forEach(item => {
+      //   this.currentChannelData.forEach(element => {
+      //     if(element.item_id !== item.item_id){
+      //       console.log(item)
+      //       this.currentChannelData.push(item)
+      //     }
+          
+      //   })
+      // });
+      console.log(this.currentChannelData)
+      this.currentChannelData = [...this.currentChannelData,...result]
+      this.loading = false
+      // this.finished = true
+      console.log('加载完成')
     }
   },
   mounted(){
-    console.log(this.$route)
     let{ channel } = this.$route.params
-    console.log(channel)
     let storgeData = store.get(channel)[channel]
-    this.currentChannel = storgeData
+    this.currentChannelData = storgeData
     this.isLoading = false
   },
   watch:{
+    '$store.state.refreshData'(newValue,oldValue){
+      console.log('数据更新了')
+      Notify({
+        type: 'success',
+        message: '成功了!',
+        background: 'rgba(213, 233, 247, 0.9)',
+        color:'#2a90d7',
+        className:'refresh-tip'
+      })
+      this.currentChannelData = newValue
+    },
     async $route(to,from){
       this.isLoading = true
       let {channel} = to.params
-      console.log(channel)
       this.$store.commit('changeChannel',{
         currentChannel:channel
       })
       try{
         // 从localstorge里面读取缓存 
         let storgeData = store.get(channel)[channel]
-        console.log(storgeData) 
+        // console.log(storgeData) 
         if(storgeData){
-          this.currentChannel = storgeData
+          this.currentChannelData = storgeData
           this.isLoading = false
         }else{
           console.log("请求接口")
@@ -106,20 +163,32 @@ export default {
             [channel]:result
           })
           // 更新数据
-          this.currentChannel = result
+          this.currentChannelData = result
           this.isLoading = false
         }
       }catch(error){
         console.log("没有该信息")
-        let result = await get({channel})
+        let result = await getNewsList({
+          url:'/list/',
+          params:{
+            tag : channel,
+            count :'20',
+            format : 'json_raw',
+            as : 'A1C5BDDD96C0248',
+            cp : '5DD6A092A478EE1',
+            min_behot_time : parseInt(Date.now() / 1000),
+            _signature : '38NB5QAAghwmOKnqTgbwUd.DQf',
+          }
+          
+        })
         // 设置 localstorge
+        console.log(result)
         store.set(channel,{
           [channel]:result
         })
-        this.currentChannel = result
+        this.currentChannelData = result
         this.isLoading = false
       }
-    // let res = await getAll()
     }
   }
 }
@@ -127,7 +196,6 @@ export default {
 
 <style lang="stylus" scoped>
 #main-content
-  // height calc(100% - .37rem)
   width 100%
   flex 1
   overflow hidden
@@ -137,6 +205,10 @@ export default {
     color #999
     font-size .16rem
     text-align center
+  .ivu-scroll-wrapper
+    .ivu-scroll-loader
+      .ivu-scroll-container
+        display none!important
   section 
     margin 0 .15rem
     border-bottom 1px solid rgba(221, 221, 221, 0.6); 

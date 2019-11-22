@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import _ from 'lodash'
+import {get} from 'utils/http'
 import {activeList,inactiveList} from '../data/controllerList'
 Vue.use(Vuex)
 
@@ -8,9 +9,17 @@ export default new Vuex.Store({
   state: {
     activeList,
     inactiveList,
-    currentChannel:'__all__'
+    currentChannel:'__all__',
+    refreshData:[],
+    isRotate:false
+  },
+  getters:{
+    
   },
   mutations: {
+    refresh(state,payload){
+      console.log(payload)
+    },
     // 改变当前频道
     changeChannel(state,payload){
       state.currentChannel=payload.currentChannel
@@ -51,6 +60,17 @@ export default new Vuex.Store({
     
   },
   actions: {
+    async refresh({commit,state},payload){
+      state.isRotate = true
+      let result = await get({channel:state.currentChannel})
+      commit('refresh',{
+        refreshData : result
+      })
+      state.refreshData = result
+      console.log(result)
+      console.log(state.refreshData)
+      state.isRotate = false
+    }
   },
   modules: {
   }

@@ -13,3 +13,7 @@
     -webkit-transform: rotateZ(360deg);
   }
 }
+.refresh-tip{
+  height:.32rem;
+  top:.8rem !important
+}

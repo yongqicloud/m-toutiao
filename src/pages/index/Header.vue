@@ -5,7 +5,7 @@
     </div>
     <div class="logo-box">
       <a href="javascript:;" class="logo-link"></a>
-      <i :class="{'refresh-box':true,rotate:isRotate} " @click="handleRefresh"></i>
+      <i :class="{'refresh-box':true,rotate:$store.state.isRotate} " @click="handleRefresh"></i>
     </div>
     <div class="search-box">
       <router-link
@@ -18,19 +18,30 @@
 </template>
 
 <script>
+import {get} from 'utils/http'
+import store from 'store'
 export default {
   data(){
     return {
-      isRotate:false
+      isRotate:false,
+      
     }
   },
   methods:{
-    handleRefresh(){
-      console.log(555)
-      this.isRotate = true
+    async handleRefresh(){
+      // let channel = this.$store.state.currentChannel
+      // console.log(channel)
+      // let result = await get({channel})
+      // console.log(result)
+      // store.set(channel,{
+      //   [channel]:result
+      // })
+      // this.isRotate = true
       // setTimeout(()=>{
       //   this.isRotate = false
-      // },3000)
+      // },700)
+
+      this.$store.dispatch('refresh')
     }
   }
 }

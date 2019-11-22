@@ -1,28 +1,31 @@
 <template>
   <nav>
-    <div class="top-menu-list">
-      <router-link
-        tag="a"
-        href="javascript:;"
-        class="btn-nav"
-        data-link="__all__"
-        to="/index/channel/__all__"
-        active-class="active"
-        @click="handleClick"
-      >
-        推荐
-      </router-link>
-      <router-link
-        tag="a"
-        href="javascript:;"
-        class="btn-nav"
-        v-for="(list,name) in activeList"
-        :key="list.chaneel"
-        :data-link="list.channel"
-        :to="`/index/channel/${list.channel}`"
-        active-class="active"
-        @click="handleClick"
-      >{{name}}</router-link>
+    <div class="top-menu-list" ref="bScroll">
+      <div id="bScroll" >
+        <router-link
+          tag="a"
+          href="javascript:;"
+          class="btn-nav"
+          data-link="__all__"
+          to="/index/channel/__all__"
+          active-class="active"
+          @click.native="handleClick"
+        >
+          推荐
+        </router-link>
+        <router-link
+          tag="a"
+          href="javascript:;"
+          class="btn-nav"
+          v-for="(list,name) in activeList"
+          :key="list.chaneel"
+          :data-link="list.channel"
+          :to="`/index/channel/${list.channel}`"
+          active-class="active"
+          ref="list.channel"
+          @click.native="handleClick"
+        >{{name}}</router-link>
+      </div>
     </div>
     <div class="top-menu-more">
       <div class="menu-more-shadow"></div>
@@ -39,7 +42,7 @@
 
 <script>
 import {mapState} from 'vuex'
-
+import BScroll from 'better-scroll'
 export default {
   data(){
     return {
@@ -49,13 +52,28 @@ export default {
   },
   methods:{
     handleClick(evt){
-        console.log(evt)
+      let {target} = evt
+      // 现在better-scroll内居中
+      this.scroll.scrollToElement(target,0,true)
+      // 相对中心在右移20px，保持绝对居中
+      let x = this.scroll.x - 20
+      if(this.scroll.x - this.scroll.maxScrollX > 20 ){
+        this.scroll.scrollBy(20,0,0)
+      }
     }
   },
   mounted(){
     let store = this.$store.state
     this.activeList = store.activeList
     this.inactiveList = store.inactiveList
+    
+    this.$nextTick(() => {
+      this.scroll = new BScroll(this.$refs.bScroll, {
+        scrollX:true,
+        click: true,
+        bounce:false
+      })
+    })
   }
 }
 </script>
@@ -76,17 +94,19 @@ nav
     // justify-content flex-start
     overflow hidden
     overflow-x scroll 
-    a.active
-      color red
-    .btn-nav
-      box-sizing border-box
-      display inline-block
-      width .54rem
-      height .26rem
-      margin .05rem 0 .05rem .05rem
-      padding 0 .1rem
-      font-size  .17rem
-      color #505050
+    #bScroll
+      
+      a.active
+        color red
+      .btn-nav
+        box-sizing border-box
+        display inline-block
+        width .54rem
+        height .26rem
+        margin .05rem 0 .05rem .05rem
+        padding 0 .1rem
+        font-size  .17rem
+        color #505050
   .top-menu-more
     width .4rem
     height .36rem
