@@ -1,9 +1,11 @@
 <template>
-  <div class="recommendation-item">
-    <h2 class="container-header"><slot name="title"></slot></h2>
-    <div class="feedlist-container">
-      <div class="list-content">
-        <slot name="loopItem"></slot>
+  <div>
+    <div class="recommendation-item">
+      <h2 class="container-header"><slot name="title"></slot></h2>
+      <div class="feedlist-container">
+        <div class="list-content">
+          <slot name="loopItem"></slot>
+        </div>
       </div>
     </div>
   </div>
@@ -11,7 +13,7 @@
 
 <script>
 export default {
-
+  
 }
 </script>
 

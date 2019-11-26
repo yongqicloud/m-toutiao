@@ -14,6 +14,7 @@ import Nav from './Nav'
 import Header from './Header'
 import OpenApp from 'components/OpenApp'
 export default {
+  
   components:{
     Nav,
     Header,

@@ -1,17 +1,20 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import _ from 'lodash'
+import store from 'store'
 import {get} from 'utils/http'
 import {activeList,inactiveList} from '../data/controllerList'
 Vue.use(Vuex)
-
+let {channel} = store.get('currentChannel')
+console.log(channel)
 export default new Vuex.Store({
   state: {
     activeList,
     inactiveList,
-    currentChannel:'__all__',
+    currentChannel: channel || '__all__',
     refreshData:[],
-    isRotate:false
+    isRotate:false,
+    scrollPosition:0
   },
   getters:{
     
@@ -19,6 +22,10 @@ export default new Vuex.Store({
   mutations: {
     refresh(state,payload){
       console.log(payload)
+    },
+    //改变better-scroll的位置
+    changePosition(state,payload){
+      state.scrollPosition = payload.position
     },
     // 改变当前频道
     changeChannel(state,payload){
@@ -70,6 +77,11 @@ export default new Vuex.Store({
       console.log(result)
       console.log(state.refreshData)
       state.isRotate = false
+    },
+    changePosition({commit},payload){
+      commit('changePosition',{
+        position:payload.position
+      })
     }
   },
   modules: {

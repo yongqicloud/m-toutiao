@@ -72,10 +72,9 @@ export const getRecommand = ({
     }
   })
   .then((result)=>{
-    console.log(result)
     return result.data
   })
   .catch((error)=>{
-    console.log(error)
+    return error.message
   })
 }

@@ -46,11 +46,9 @@ export default {
     expand(){
       console.log('展开')
       this.isAuto = false
-
     }
   },
   mounted(){
-    console.log('------------')
   }
 }
 </script>

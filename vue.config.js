@@ -11,22 +11,22 @@ module.exports = {
   },
   devServer: {
     proxy: {
-      // '/api': {
-      //   target: 'https://m.toutiao.com/i6760977573347328515/info/?_signature=gi5muhAZ4At71Y61KkV564IuZq&i=6760977573347328515',
-      //   changeOrigin: true,
-      // },
       '/list': {
         target: 'https://m.toutiao.com',
         changeOrigin: true,
         
       },
-      '/api': {
+      '/tt': {
         target: 'https://m.toutiao.com',
         changeOrigin: true,
         secure:true,
         pathRewrite:{
-          '^/api':''
+          '^/tt':''
         }
+      },
+      '/api':{
+        target:'https://i.snssdk.com',
+        changeOrigin:true,
       }
     }
 

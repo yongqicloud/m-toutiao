@@ -2,6 +2,7 @@
   <nav>
     <div class="top-menu-list" ref="bScroll">
       <div id="bScroll" >
+        
         <router-link
           tag="a"
           href="javascript:;"
@@ -22,7 +23,7 @@
           :data-link="list.channel"
           :to="`/index/channel/${list.channel}`"
           active-class="active"
-          ref="list.channel"
+          :ref="list.channel"
           @click.native="handleClick"
         >{{name}}</router-link>
       </div>
@@ -51,10 +52,15 @@ export default {
     }
   },
   methods:{
+    // 导航链接
     handleClick(evt){
       let {target} = evt
+      this.handleToMiddle(target)
+    },
+    // 保持nav的状态 刷新保持在原来位置
+    handleToMiddle(el){
       // 现在better-scroll内居中
-      this.scroll.scrollToElement(target,0,true)
+      this.scroll.scrollToElement(el,0,true)
       // 相对中心在右移20px，保持绝对居中
       let x = this.scroll.x - 20
       if(this.scroll.x - this.scroll.maxScrollX > 20 ){
@@ -62,19 +68,29 @@ export default {
       }
     }
   },
-  mounted(){
-    let store = this.$store.state
-    this.activeList = store.activeList
-    this.inactiveList = store.inactiveList
-    
-    this.$nextTick(() => {
-      this.scroll = new BScroll(this.$refs.bScroll, {
-        scrollX:true,
-        click: true,
-        bounce:false
-      })
+  async mounted(){
+    let {activeList,inactiveList,currentChannel} = this.$store.state
+    this.activeList = activeList
+    this.inactiveList = inactiveList
+    await this.$nextTick()
+    this.scroll = new BScroll(this.$refs.bScroll, {
+      scrollX:true,
+      click: true,
+      bounce:false
+    })
+    if(currentChannel !== '__all__'){
+      let el = this.$refs[currentChannel][0].$el
+      this.handleToMiddle(el)
+    }
+  },
+  beforeDestroy(){
+    console.log('销毁了')
+    console.log(this.scroll.x)
+    this.$store.dispatch('changePosition',{
+      position:this.scroll.x
     })
   }
+  
 }
 </script>
 

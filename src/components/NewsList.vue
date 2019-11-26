@@ -5,6 +5,8 @@
       :finished="finished"
       finished-text="没有更多了"
       @load="onLoad"
+      :immediate-check="false"
+      :offset="20"
     >
     <div
       class="loading"
@@ -45,7 +47,7 @@
               <span class="label space" v-if="item.label">置顶</span>
               <span class="newspaper space">{{item.source}}</span>
               <span class="comment-count space">评论 {{item.repin_count}}</span>
-              <span class="release-time">{{item.publish_time}}</span>
+              <span class="release-time">{{item.publish_time | stampToYYMMDD}}</span>
             </div>
           </div>
         </div>
@@ -64,11 +66,11 @@
 import {get,getNewsList} from '../utils/http'
 import store from 'store'
 import Vue from 'vue'
-import {Notify,List} from 'vant'
+import moment from 'moment'
+moment.locale('zh-cn')     
+import {Notify,List, Collapse} from 'vant'
 Vue.use(Notify)
-Vue.use(List,{
-  'immediate-check':false
-})
+Vue.use(List)
 export default {
   data(){
     return {
@@ -86,6 +88,30 @@ export default {
       console.log('更新刷新',$store.state.refreshData)
     }
   },
+  filters:{
+    stampToYYMMDD(value){
+       // 处理逻辑
+      let date = ~~(Date.now() / 1000)
+      let seconds = date - value
+      let minutes = ~~(seconds / 60)
+      let hours = ~~(seconds / 3600)
+      let day = ~~(hours / 24)
+      if(seconds < 60){
+        return '刚刚'
+      }else if(hours < 1 && minutes < 60 && seconds>= 60){
+        // 分钟
+        return `${minutes}分钟前`
+      }else if(hours >= 1 && hours < 24 && seconds >= 60 ){
+        // 小时
+        return `${hours}小时前`
+      }else if(hours >= 24 && day >=1 && day <= 3){
+        // 天
+        return `${day}天前`
+      }else{
+        return moment(value * 1000).format('MM-DD HH:mm')
+      }
+    }
+  },
   methods:{
     async onLoad() {
       this.loading = true
@@ -95,28 +121,18 @@ export default {
       console.log(channel)
       let i = parseInt(Date.now() / 1000)
       let result = await getNewsList({
-        url:'/list/',
+        url:`/list/?tag=${channel}`,
         params:{
-          tag : channel,
           ac: 'wap',
           count: '20',
           format: 'json_raw',
           as: 'A1B5FDBDE677E27',
           cp: '5DD6371ED207BE1',
-          max_behot_time: '1574325537',
+          max_behot_time: i,
           _signature: 'rpga3wAA81xXY.LQ.rbb566YGs',
-          i: 1574325537
+          i
         }
       })
-      // result.forEach(item => {
-      //   this.currentChannelData.forEach(element => {
-      //     if(element.item_id !== item.item_id){
-      //       console.log(item)
-      //       this.currentChannelData.push(item)
-      //     }
-          
-      //   })
-      // });
       console.log(this.currentChannelData)
       this.currentChannelData = [...this.currentChannelData,...result]
       this.loading = false
@@ -126,8 +142,15 @@ export default {
   },
   mounted(){
     let{ channel } = this.$route.params
-    let storgeData = store.get(channel)[channel]
-    this.currentChannelData = storgeData
+    store.set('currentChannel',{
+      channel
+    })
+    try{
+      let storgeData = store.get(channel)[channel]
+      this.currentChannelData = storgeData
+    }catch(error){
+      console.log(error.message)
+    }
     this.isLoading = false
   },
   watch:{
@@ -135,18 +158,22 @@ export default {
       console.log('数据更新了')
       Notify({
         type: 'success',
-        message: '成功了!',
+        message: '刷新成功!',
         background: 'rgba(213, 233, 247, 0.9)',
         color:'#2a90d7',
         className:'refresh-tip'
       })
       this.currentChannelData = newValue
     },
+    // 动态路由
     async $route(to,from){
       this.isLoading = true
       let {channel} = to.params
       this.$store.commit('changeChannel',{
         currentChannel:channel
+      })
+      store.set('currentChannel',{
+        channel
       })
       try{
         // 从localstorge里面读取缓存 
@@ -156,7 +183,6 @@ export default {
           this.currentChannelData = storgeData
           this.isLoading = false
         }else{
-          console.log("请求接口")
           let result = await get({channel})
           // 设置 localstorge
           store.set(channel,{
@@ -167,22 +193,21 @@ export default {
           this.isLoading = false
         }
       }catch(error){
-        console.log("没有该信息")
+        console.log("没有该信息的本地存储")
+        let i = parseInt(Date.now() / 1000)
         let result = await getNewsList({
-          url:'/list/',
+          url:`/list/?tag=${channel}`,
           params:{
-            tag : channel,
-            count :'20',
-            format : 'json_raw',
-            as : 'A1C5BDDD96C0248',
-            cp : '5DD6A092A478EE1',
-            min_behot_time : parseInt(Date.now() / 1000),
-            _signature : '38NB5QAAghwmOKnqTgbwUd.DQf',
+            ac: 'wap',
+            count: '20',
+            format: 'json_raw',
+            as: 'A1B5FDBDE677E27',
+            cp: '5DD6371ED207BE1',
+            max_behot_time: '',
+            _signature: 'rpga3wAA81xXY.LQ.rbb566YGs',
           }
-          
         })
-        // 设置 localstorge
-        console.log(result)
+        //设置 localstorge
         store.set(channel,{
           [channel]:result
         })
@@ -190,6 +215,9 @@ export default {
         this.isLoading = false
       }
     }
+  },
+  beforeRouteUpdate (to,from,next){
+    next()
   }
 }
 </script>
